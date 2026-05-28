@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 9</title>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "3c60fbc5a4eb4b9f9fc1cdd90716bced"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+
   <style>
     button {
       margin: 3px;
@@ -47,7 +55,8 @@
       width: 122px;
     }
   </style>
-</head>
+  
+  </head>
 
 <body>
   <main>
@@ -69,25 +78,33 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="btn-log">Console Log</button>
+      <button id="btn-error">Console Error</button>
+      <button id="btn-count">Console Count</button>
+      <button id="btn-warn">Console Warn</button>
+      <button id="btn-assert">Console Assert</button>
+      <button id="btn-clear">Console Clear</button>
+      <button id="btn-dir">Console Dir</button>
+      <button id="btn-dirxml">Console dirxml</button>
+      <button id="btn-group-start">Console Group Start</button>
+      <button id="btn-group-end">Console Group End</button>
+      <button id="btn-table">Console Table</button>
+      <button id="btn-start-timer">Start Timer</button>
+      <button id="btn-end-timer">End Timer</button>
+      <button id="btn-trace">Console Trace</button>
+      <button id="btn-global-error">Trigger a Global Error</button>
     </section>
   </main>
 
   <script>
+    // Structural application validation
+    class CalculatorValidationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "CalculatorValidationError";
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +112,107 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      
+      // Try / Catch / Finally Integration with realistic input constraint processing
+      try {
+        // Validation check for unentered calculation values
+        if (firstNum.trim() === "" || secondNum.trim() === "") {
+          throw new CalculatorValidationError("Input calculations cannot contain blank parameters.");
+        }
+        
+        // Validation check to block calculation values from resolving to non-numbers
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new CalculatorValidationError("Invalid character set parsing: Values must be valid digits.");
+        }
+
+        // Validation check to block evaluating explicit mathematical breakdowns
+        if (operator === '/' && Number(secondNum) === 0) {
+          throw new CalculatorValidationError("Division constraint: Cannot evaluate calculation models handling zero denominators.");
+        }
+
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (error) {
+        console.error(`[Caught Localized Error] Type: ${error.name} - Reason: ${error.message}`);
+        output.innerHTML = "Error processed. Check DevTools console context.";
+      } finally {
+        console.log("Form processing evaluation lifecycle stage concluded.");
+      }
     });
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+    document.getElementById('btn-log').addEventListener('click', () => {
+      console.log("Console Log Interface Triggered.");
+    });
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    document.getElementById('btn-error').addEventListener('click', () => {
+      console.error("Console Error Interface Triggered: Critical event logged.");
+    });
+
+    document.getElementById('btn-count').addEventListener('click', () => {
+      console.count("Button Interaction Total Counts");
+    });
+
+    document.getElementById('btn-warn').addEventListener('click', () => {
+      console.warn("Console Warning State Alert.");
+    });
+
+    document.getElementById('btn-assert').addEventListener('click', () => {
+      const conditionValue = false;
+      console.assert(conditionValue, "Assertion Evaluation Failure: Value resolved false.");
+    });
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      console.clear();
+    });
+
+    document.getElementById('btn-dir').addEventListener('click', () => {
+      console.dir(document.getElementById('btn-dir'));
+    });
+
+    document.getElementById('btn-dirxml').addEventListener('click', () => {
+      console.dirxml(document.querySelector('main'));
+    });
+
+    document.getElementById('btn-group-start').addEventListener('click', () => {
+      console.group("DevTools Log Group Sequence");
+      console.log("Active course criteria inside tracking group.");
+    });
+
+    document.getElementById('btn-group-end').addEventListener('click', () => {
+      console.groupEnd();
+    });
+
+    document.getElementById('btn-table').addEventListener('click', () => {
+      console.table([
+        { courseCode: 'CSE 110', quarterTerm: 'Spring 2026' },
+        { courseCode: 'CSE 120', quarterTerm: 'Spring 2026' }
+      ]);
+    });
+
+    document.getElementById('btn-start-timer').addEventListener('click', () => {
+      console.time("Performance Execution Boundary");
+    });
+
+    document.getElementById('btn-end-timer').addEventListener('click', () => {
+      console.timeEnd("Performance Execution Boundary");
+    });
+
+    document.getElementById('btn-trace').addEventListener('click', () => {
+      function nestedTraceStep() {
+        console.trace("Call Stack Context Capture Trace Link");
+      }
+      nestedTraceStep();
+    });
+
+    // Global listener intercept layer logic 
+    window.onerror = function (message, url, line, col, error) {
+      console.log(`Intercepted Global Uncaught Execution Failure: "${message}" on row element line reference: ${line}`);
+      return false; // Leave false so that the error propagates properly out to TrackJS
+    };
+
+    document.getElementById('btn-global-error').addEventListener('click', () => {
+      // Intentionally triggers an uncaught ReferenceError globally by calling a nonexistent function
+      executeNonExistentExplosionSequence();
+    });
   </script>
 </body>
 
